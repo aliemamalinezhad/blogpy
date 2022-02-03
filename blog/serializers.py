@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
+
 class SingleArticleSerializer(serializers.Serializer):
-    title = serializers.CharField(required=True,  max_length=128)
-    cover = serializers.CharField(required=True,  max_length=256)
-    content = serializers.CharField(required=True,  max_length=2048)
+    title = serializers.CharField(required=True, max_length=128)
+    cover = serializers.CharField(required=True, max_length=256)
+    content = serializers.CharField(required=True, max_length=2048)
     created_at = serializers.DateTimeField(required=True)
-    
 
 
 class SubmitArticleSerializer(serializers.Serializer):

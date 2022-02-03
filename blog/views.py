@@ -6,10 +6,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from . import serializers
 
+
 # Create your views here.
 
 class IndexPage(TemplateView):
     template_name = 'index.html'
+
     def get(self, request, *args, **kwargs):
 
         article_data = []
@@ -22,9 +24,8 @@ class IndexPage(TemplateView):
                 'category': article.category.title,
                 'created_at': article.created_at,
             })
-        
 
-        promote_data =[]
+        promote_data = []
         all_promote_articles = Article.objects.filter(promote=True)
         for promote_article in all_promote_articles:
             promote_data.append({
@@ -33,7 +34,7 @@ class IndexPage(TemplateView):
                 'cover': promote_article.cover.url,
                 'author': f'{promote_article.author.user.first_name}  {promote_article.author.user.last_name}',
                 'avatar': promote_article.author.avatar.url if promote_article.author.avatar else None,
-                'created_at':promote_article.created_at.date()
+                'created_at': promote_article.created_at.date()
             })
 
         context = {
@@ -42,7 +43,6 @@ class IndexPage(TemplateView):
         }
 
         return render(request, self.template_name, context)
-
 
 
 class ContactPage(TemplateView):
@@ -65,13 +65,14 @@ class AllArticleApiView(APIView):
                     "category": article.category.title,
                     "author": f'{article.author.user.first_name} {article.author.user.last_name}',
                     "promote": article.promote,
-                    })
+                })
 
-            return Response({'data':data}, status = status.HTTP_200_OK)
+            return Response({'data': data}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'Internal Server Error'},
-                status = status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                            )
+
 
 class SingleArticleApiView(APIView):
     def get(self, request, *args, **kwargs):
@@ -81,11 +82,11 @@ class SingleArticleApiView(APIView):
 
             serialized_data = serializers.SingleArticleSerializer(article, many=True)
             data = serialized_data.data
-            
-            return Response({'data':data}, status=status.HTTP_200_OK)
+
+            return Response({'data': data}, status=status.HTTP_200_OK)
         except:
             return Response({'status': 'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
 
 class SearchArticleApiView(APIView):
     def get(self, request, *args, **kwargs):
@@ -96,7 +97,7 @@ class SearchArticleApiView(APIView):
             query = request.GET['query']
             articles = Article.objects.filter(Q(content__icontains=query))
             data = []
-            
+
             for article in articles:
                 data.append({
                     "title": article.title,
@@ -105,14 +106,15 @@ class SearchArticleApiView(APIView):
                     "created_at": article.created_at,
                     "category": article.category.title,
                     "author": f'{article.author.user.first_name} {article.author.user.last_name}',
-                    "promote":article.promote,
+                    "promote": article.promote,
                 })
 
-            return Response({'data':data}, status=status.HTTP_200_OK)
+            return Response({'data': data}, status=status.HTTP_200_OK)
         except:
             return Response({"status": "Internal Server Error"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                            )
+
 
 class SubmitArticleApiView(APIView):
     def post(self, request, format=None):
@@ -126,7 +128,7 @@ class SubmitArticleApiView(APIView):
                 author_id = serializer.data.get('author_id')
                 promote = serializer.data.get('promote')
             else:
-                return Response({'status':'Bad Request.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'status': 'Bad Request.'}, status=status.HTTP_400_BAD_REQUEST)
 
             user = User.objects.get(id=author_id)
             author = UserProfile.objects.get(user=user)
@@ -157,7 +159,7 @@ class UpdateArticleApiView(APIView):
                 cover = request.FILES['cover']
             else:
                 return Response({'status': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
-                
+
             Article.objects.filter(id=article_id).update(cover=cover)
 
             return Response({'status': 'OK'}, status=status.HTTP_200_OK)
@@ -165,6 +167,7 @@ class UpdateArticleApiView(APIView):
         except:
             return Response({'status': "Internal Server Error, We'll Check It Later"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class DeleteArticleApiView(APIView):
     def post(self, request):
@@ -174,11 +177,11 @@ class DeleteArticleApiView(APIView):
                 article_id = serializer.data.get('article_id')
             else:
                 return Response({'status': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             Article.objects.filter(id=article_id).delete()
-            
+
             return Response({'status': 'OK'}, status=status.HTTP_200_OK)
-            
+
         except:
             return Response({'status': "Internal Server Error, We'll Check It Later"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
